@@ -24,6 +24,14 @@ async function run() {
             const result = await cursor.limit(6).toArray();
             res.send(result)
         })
+
+        //get all products 
+        app.get('/allproducts', async (req, res) => {
+            const cursor = laptopCollection.find({})
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
         //get products by id 
         app.get('/inventory/:id', async (req, res) => {
             const id = req.params.id;
@@ -43,6 +51,14 @@ async function run() {
                 }
             }
             const result = await laptopCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
+        //delete items
+        app.delete('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await laptopCollection.deleteOne(query)
             res.send(result)
         })
 
