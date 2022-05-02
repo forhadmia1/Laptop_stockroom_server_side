@@ -62,6 +62,13 @@ async function run() {
             res.send(result)
         })
 
+        //add items 
+        app.post('/inventory/additem', async (req, res) => {
+            const newItem = req.body;
+            const result = await laptopCollection.insertOne(newItem)
+            res.send(result)
+        })
+
     } finally {
 
     }
