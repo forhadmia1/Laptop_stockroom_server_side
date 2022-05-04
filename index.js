@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 require('dotenv').config();
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
@@ -18,6 +19,17 @@ async function run() {
         await client.connect()
         const laptopCollection = client.db('laptop-stockroom').collection('laptops');
 
+        //verify jwt 
+        function verifyJwt(req, res, next) {
+            const authorization = req.headers.authorization;
+            if (authorization) {
+                const token = authorization.split(' ')[1]
+                jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+                    req.decoded = decoded;
+                })
+            }
+            next()
+        }
         //get 6 data for homepage
         app.get('/laptops', async (req, res) => {
             const cursor = laptopCollection.find({})
@@ -27,11 +39,21 @@ async function run() {
 
         //get all products 
         app.get('/allproducts', async (req, res) => {
-            const email = req.query.email;
-            const query = { author: email }
+            const query = {}
             const cursor = laptopCollection.find(query)
             const result = await cursor.toArray();
             res.send(result)
+        })
+
+        //get my items 
+        app.get('/myitems', verifyJwt, async (req, res) => {
+            const author = req.query.email;
+            const query = { author }
+            if (req.decoded === author) {
+                const cursor = laptopCollection.find(query)
+                const result = await cursor.toArray()
+                res.send(result)
+            }
         })
 
         //get products by id 
@@ -41,6 +63,7 @@ async function run() {
             const result = await laptopCollection.findOne(query)
             res.send(result)
         })
+
         //update data 
         app.put('/inventory/:id', async (req, res) => {
             const id = req.params.id;
@@ -69,6 +92,14 @@ async function run() {
             const newItem = req.body;
             const result = await laptopCollection.insertOne(newItem)
             res.send(result)
+        })
+
+        //generate token 
+        app.post('/login', (req, res) => {
+            console.log(req.body)
+            const email = req.body.email;
+            const token = jwt.sign(email, process.env.ACCESS_TOKEN)
+            res.send({ token })
         })
 
     } finally {
