@@ -38,19 +38,14 @@ async function run() {
             res.send({ count: result })
         })
 
-        //get 6 data for homepage
-        app.get('/laptops', async (req, res) => {
-            const cursor = laptopCollection.find({})
-            const result = await cursor.limit(6).toArray();
-            res.send(result)
-        })
-
-        //get all products 
+        //get  data for homepage
         app.get('/allproducts', async (req, res) => {
-            const query = {}
-            const cursor = laptopCollection.find(query)
-            const result = await cursor.toArray();
+            const skip = parseInt(req.query.skip);
+            const limit = parseInt(req.query.limit);
+            const cursor = laptopCollection.find({})
+            const result = await cursor.skip(skip).limit(limit).toArray();
             res.send(result)
+            console.log(result.length)
         })
 
         //get my items 
