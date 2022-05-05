@@ -30,6 +30,14 @@ async function run() {
             }
             next()
         }
+
+        //get product couunt 
+        app.get('/count', async (req, res) => {
+            const result = await laptopCollection.countDocuments();
+            console.log(result)
+            res.send({ count: result })
+        })
+
         //get 6 data for homepage
         app.get('/laptops', async (req, res) => {
             const cursor = laptopCollection.find({})
