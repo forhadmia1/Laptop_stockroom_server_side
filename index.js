@@ -119,6 +119,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('listening port', port)
 })
-
-//root api
-// https://protected-atoll-86406.herokuapp.com/
